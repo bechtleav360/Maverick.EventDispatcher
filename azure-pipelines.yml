@@ -3,7 +3,7 @@ trigger:
   - develop
   - feature/*
 
-pool: 'A365VSTS'
+pool: 'Docker'
 
 steps:
   - task: Maven@3
