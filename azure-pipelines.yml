@@ -17,28 +17,14 @@ steps:
       azureCommonVirtualFile: 'OpenJDK17U-jdk_x64_linux_hotspot_17.0.7_7.tar.gz'
       cleanDestinationDirectory: false
   - script: |
-      rm /usr/local/bin/mvn
-      echo "Check if Maven is installed"
-      mvn -version || echo "Maven not installed"
-
       echo "Download Maven"
       wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.1/apache-maven-3.8.1-bin.tar.gz
+
+      mv apache-maven* maven.tar.gz
       
       echo "Unzip Maven"
-      tar xzvf apache-maven-3.8.1-bin.tar.gz
-      
-      echo "Move Maven to correct location"
-      mv apache-maven-3.8.1 /usr/local/apache-maven
-
-      echo "Update PATH variable"
-      echo "export M2_HOME=/usr/local/apache-maven" >> ~/.profile
-      echo "export MAVEN_HOME=/usr/local/apache-maven" >> ~/.profile
-      echo "export PATH=${M2_HOME}/bin:${PATH}" >> ~/.profile
-      source ~/.profile
-
-      echo "Check Maven version"
-      mvn -version
-    displayName: 'Install Maven'
+      tar xzvf maven.tar.gz
+    displayName: 'Download Maven'
   - task: Maven@3
     displayName: Test and Package
     inputs:
@@ -49,6 +35,8 @@ steps:
       javaHomeOption: 'JDKVersion'
       jdkVersionOption: 1.17
       jdkArchitectureOption: x64
+      mavenVersionOption: Path
+      mavenDirectory: 'maven'
   - script: echo "Publishing image with $(Build.BuildNumber)"
   - task: Maven@3
     displayName: Build and publish Filter Docker Image to Container Registry
