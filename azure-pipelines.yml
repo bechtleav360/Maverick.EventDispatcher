@@ -10,7 +10,11 @@ steps:
     inputs:
       versionSpec: '17'
       jdkArchitectureOption: 'x64'
-      jdkSourceOption: 'PreInstalled'
+      jdkSourceOption: 'AzureStorage'
+      azureResourceManagerEndpoint: 'ARM_EAGL_DEV'
+      azureStorageAccountName: jdks
+      azureContainerName: windowsjdks
+      azureCommonVirtualFile: 'OpenJDK17U-jdk_x64_windows_hotspot_17.0.7_7.zip'
   - task: Maven@3
     displayName: Test and Package
     inputs:
