@@ -27,6 +27,7 @@ steps:
       tar xzvf apache-maven-3.8.1-bin.tar.gz
       
       echo "Move Maven to correct location"
+      rm -r /usr/local/maven
       mv apache-maven-3.8.1 /usr/local/maven
     displayName: 'Download Maven'
   - task: Maven@3
