@@ -57,4 +57,49 @@ steps:
         -Djib.to.auth.username=$(imageRegistryUsername)
         -Djib.to.auth.password=$(imageRegistryPassword)
         -Djib.allowInsecureRegistries=true
+  - task: Maven@3
+    displayName: Build and publish Filter Docker Image to Container Registry
+    inputs:
+      mavenPomFile: 'event-dispatcher-filter/pom.xml'
+      goals: 'spring-boot:build-image'
+      publishJUnitResults: true
+      jdkVersionOption: 1.17
+      mavenVersionOption: Path
+      mavenDirectory: '/maven'
+      options: >
+        -DskipTests=false 
+        -Ddocker.publish=true
+        -Ddocker.registry.host=$(imageRegistryUrl)
+        -Ddocker.credentials.user=$(imageRegistryUsername)
+        -Ddocker.credentials.password=$(imageRegistryPassword)
+  - task: Maven@3
+    displayName: Build and publish Receiver Docker Image to Container Registry
+    inputs:
+      mavenPomFile: 'event-dispatcher-receiver/pom.xml'
+      goals: 'jib:build'
+      publishJUnitResults: true
+      jdkVersionOption: 1.17
+      mavenVersionOption: Path
+      mavenDirectory: '/maven'
+      options: >
+        -DskipTests=false 
+        -Djib.to.image=registry.harbor.av360.org/maverick/event-dispatcher-receiver
+        -Djib.to.auth.username=$(imageRegistryUsername)
+        -Djib.to.auth.password=$(imageRegistryPassword)
+        -Djib.allowInsecureRegistries=true
+  - task: Maven@3
+    displayName: Build and publish Subscriptions Docker Image to Container Registry
+    inputs:
+      mavenPomFile: 'event-dispatcher-subscriptions/pom.xml'
+      goals: 'spring-boot:build-image'
+      publishJUnitResults: true
+      jdkVersionOption: 1.17
+      mavenVersionOption: Path
+      mavenDirectory: '/maven'
+      options: >
+        -DskipTests=false 
+        -Ddocker.publish=true
+        -Ddocker.registry.host=$(imageRegistryUrl)
+        -Ddocker.credentials.user=$(imageRegistryUsername)
+        -Ddocker.credentials.password=$(imageRegistryPassword)
         
