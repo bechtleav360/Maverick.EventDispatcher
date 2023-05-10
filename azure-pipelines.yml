@@ -56,4 +56,5 @@ steps:
         -Djib.to.image=registry.harbor.av360.org/maverick/event-dispatcher-publisher
         -Djib.to.auth.username=$(imageRegistryUsername)
         -Djib.to.auth.password=$(imageRegistryPassword)
+        -Djib.allowInsecureRegistries=true
         
