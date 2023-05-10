@@ -6,28 +6,6 @@ trigger:
 pool: 'Docker'
 
 steps:
-  - script: |
-      echo "Check if Maven is installed"
-      mvn -version || echo "Maven not installed"
-
-      echo "Download Maven"
-      wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.1/apache-maven-3.8.1-bin.tar.gz
-      
-      echo "Unzip Maven"
-      tar xzvf apache-maven-3.8.1-bin.tar.gz
-      
-      echo "Move Maven to correct location"
-      mv apache-maven-3.8.1 /usr/local/apache-maven
-
-      echo "Update PATH variable"
-      echo "export M2_HOME=/usr/local/apache-maven" >> ~/.bashrc
-      echo "export MAVEN_HOME=/usr/local/apache-maven" >> ~/.bashrc
-      echo "export PATH=${M2_HOME}/bin:${PATH}" >> ~/.bashrc
-      source ~/.bashrc
-
-      echo "Check Maven version"
-      mvn -version
-    displayName: 'Install Maven'
   - task: JavaToolInstaller@0
     inputs:
       versionSpec: '17'
@@ -35,8 +13,8 @@ steps:
       jdkSourceOption: 'AzureStorage'
       azureResourceManagerEndpoint: 'ARM_EAGL_DEV'
       azureStorageAccountName: jdks
-      azureContainerName: windowsjdks
-      azureCommonVirtualFile: 'OpenJDK17U-jdk_x64_windows_hotspot_17.0.7_7.zip'
+      azureContainerName: linuxjdks
+      azureCommonVirtualFile: 'OpenJDK17U-jdk_x64_linux_hotspot_17.0.7_7.tar.gz'
   - task: Maven@3
     displayName: Test and Package
     inputs:
