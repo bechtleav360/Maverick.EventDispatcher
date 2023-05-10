@@ -46,14 +46,14 @@ steps:
     displayName: Build and publish Publisher Docker Image to Container Registry
     inputs:
       mavenPomFile: 'event-dispatcher-publisher/pom.xml'
-      goals: 'jib:dockerBuild'
+      goals: 'jib:build'
       publishJUnitResults: true
       jdkVersionOption: 1.17
       mavenVersionOption: Path
       mavenDirectory: '/maven'
       options: >
         -DskipTests=false 
-        -Djib.to.image=registry.harbor.av360.org/event-dispatcher-publisher
+        -Djib.to.image=registry.harbor.av360.org/maverick/event-dispatcher-publisher
         -Djib.to.auth.username=$(imageRegistryUsername)
         -Djib.to.auth.password=$(imageRegistryPassword)
         
