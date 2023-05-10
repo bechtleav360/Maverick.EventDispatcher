@@ -21,7 +21,7 @@ steps:
       wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.1/apache-maven-3.8.1-bin.tar.gz
       
       echo "Unzip Maven"
-      tar xzvf apache-maven-3.8.1.tar.gz
+      tar xzvf apache-maven-3.8.1-bin.tar.gz
 
       mv apache-maven-3.8.1 maven
     displayName: 'Download Maven'
