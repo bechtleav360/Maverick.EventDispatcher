@@ -19,11 +19,11 @@ steps:
   - script: |
       echo "Download Maven"
       wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.1/apache-maven-3.8.1-bin.tar.gz
-
-      mv apache-maven* maven.tar.gz
       
       echo "Unzip Maven"
-      tar xzvf maven.tar.gz
+      tar xzvf apache-maven-3.8.1.tar.gz
+
+      mv apache-maven-3.8.1 maven
     displayName: 'Download Maven'
   - task: Maven@3
     displayName: Test and Package
