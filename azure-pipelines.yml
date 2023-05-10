@@ -41,25 +41,19 @@ steps:
       mavenVersionOption: Path
       mavenDirectory: '/maven'
   - script: echo "Publishing image with $(Build.BuildNumber)"
+
   - task: Maven@3
-    displayName: Build and publish Filter Docker Image to Container Registry
-    #    env:
-    #      IMAGE_PREFIX: $(imageRegistryUrl)/maverick
-    #      IMAGE_NAME: maverick-event-dispatcher-filter
-    #      IMAGE_VERSION: release
-    #      DOCKER_HOST: $(imageRegistryUrl)
-    #      DOCKER_USER: $(docker.credentials.user)
-    #      DOCKER_PASSWORD: $(docker.credentials.password)
+    displayName: Build and publish Publisher Docker Image to Container Registry
     inputs:
-      mavenPomFile: 'event-dispatcher-filter/pom.xml'
-      goals: 'spring-boot:build-image'
+      mavenPomFile: 'event-dispatcher-publisher/pom.xml'
+      goals: 'jib:dockerBuild'
       publishJUnitResults: true
       jdkVersionOption: 1.17
       mavenVersionOption: Path
       mavenDirectory: '/maven'
       options: >
         -DskipTests=false 
-        -Ddocker.publish=true
-        -Ddocker.credentials.user=$(imageRegistryUsername)
-        -Ddocker.credentials.password=$(imageRegistryPassword)
-        -Ddocker.registry.host=$(imageRegistryUrl)
+        -Djib.to.image=$(imageRegistryUrl)/event-dispatcher-publisher
+        -Djib.to.auth.username=$(imageRegistryUsername)
+        -Djib.to.auth.password=$(imageRegistryPassword)
+        
