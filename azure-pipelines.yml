@@ -16,6 +16,21 @@ steps:
       azureContainerName: linuxjdks
       azureCommonVirtualFile: 'OpenJDK17U-jdk_x64_linux_hotspot_17.0.7_7.tar.gz'
       cleanDestinationDirectory: false
+  - script: |
+      echo "Check if Maven is installed"
+      mvn -version || echo "Maven not installed"
+
+      echo "Download Maven"
+      wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.1/apache-maven-3.8.1-bin.tar.gz
+      
+      echo "Unzip Maven"
+      tar xzvf apache-maven-3.8.1-bin.tar.gz
+      
+      echo "Move Maven to correct location"
+      mv apache-maven-3.8.1 /usr/local/maven
+
+      
+      displayName: 'Download Maven'
   - task: Maven@3
     displayName: Test and Package
     inputs:
@@ -26,7 +41,8 @@ steps:
       javaHomeOption: 'JDKVersion'
       jdkVersionOption: 1.17
       jdkArchitectureOption: x64
-      mavenVersionOption: 'Default'
+      mavenVersionOption: 'Path'
+      mavenDirectory: '/usr/local/maven'
       mavenAuthenticateFeed: false
       effectivePomSkip: false
       sonarQubeRunAnalysis: false
