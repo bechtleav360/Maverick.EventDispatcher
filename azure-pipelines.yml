@@ -3,7 +3,7 @@ trigger:
   - develop
   - feature/*
 
-pool: 'Docker'
+pool: 'A365STAGE'
 
 steps:
   - task: JavaToolInstaller@0
