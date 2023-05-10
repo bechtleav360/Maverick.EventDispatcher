@@ -23,7 +23,7 @@ steps:
       echo "Unzip Maven"
       tar xzvf apache-maven-3.8.1-bin.tar.gz
 
-      mv apache-maven-3.8.1 maven
+      mv apache-maven-3.8.1 /maven
     displayName: 'Download Maven'
   - task: Maven@3
     displayName: Test and Package
@@ -36,7 +36,7 @@ steps:
       jdkVersionOption: 1.17
       jdkArchitectureOption: x64
       mavenVersionOption: Path
-      mavenDirectory: 'maven'
+      mavenDirectory: '/maven'
   - script: echo "Publishing image with $(Build.BuildNumber)"
   - task: Maven@3
     displayName: Build and publish Filter Docker Image to Container Registry
@@ -52,6 +52,8 @@ steps:
       goals: 'spring-boot:build-image'
       publishJUnitResults: true
       jdkVersionOption: 1.17
+      mavenVersionOption: Path
+      mavenDirectory: '/maven'
       options: >
         -DskipTests=false 
         -Ddocker.publish=true
