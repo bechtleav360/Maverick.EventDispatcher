@@ -17,7 +17,7 @@ steps:
       tar xzvf apache-maven-3.8.1-bin.tar.gz
       
       echo "Move Maven to correct location"
-      sudo mv apache-maven-3.8.1 /usr/local/apache-maven
+      mv apache-maven-3.8.1 /usr/local/apache-maven
 
       echo "Update PATH variable"
       echo "export M2_HOME=/usr/local/apache-maven" >> ~/.bashrc
