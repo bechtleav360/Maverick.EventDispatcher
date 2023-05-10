@@ -53,7 +53,7 @@ steps:
       mavenDirectory: '/maven'
       options: >
         -DskipTests=false 
-        -Djib.to.image=$(imageRegistryUrl)/event-dispatcher-publisher
+        -Djib.to.image=registry.harbor.av360.org/event-dispatcher-publisher
         -Djib.to.auth.username=$(imageRegistryUsername)
         -Djib.to.auth.password=$(imageRegistryPassword)
         
