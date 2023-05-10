@@ -17,13 +17,16 @@ steps:
       azureCommonVirtualFile: 'OpenJDK17U-jdk_x64_linux_hotspot_17.0.7_7.tar.gz'
       cleanDestinationDirectory: false
   - script: |
-      echo "Download Maven"
-      wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.1/apache-maven-3.8.1-bin.tar.gz
-      
-      echo "Unzip Maven"
-      tar xzvf apache-maven-3.8.1-bin.tar.gz
-
-      mv apache-maven-3.8.1 /maven
+      if [ ! -d "/maven" ]; then
+          echo "Download Maven"
+          wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.1/apache-maven-3.8.1-bin.tar.gz
+          echo "Unzip Maven"
+          tar xzvf apache-maven-3.8.1-bin.tar.gz
+          echo "Move folder"
+          mv apache-maven-3.8.1 /maven
+      else
+          echo "Maven already downloaded"
+      fi
     displayName: 'Download Maven'
   - task: Maven@3
     displayName: Test and Package
