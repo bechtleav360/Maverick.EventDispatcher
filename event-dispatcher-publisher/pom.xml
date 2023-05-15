@@ -57,9 +57,6 @@
                     <from>
                         <image>eclipse-temurin:19-jre</image>
                     </from>
-                    <to>
-                        <image>eventdispatcher-publisher</image>
-                    </to>
                 </configuration>
             </plugin>
         </plugins>
