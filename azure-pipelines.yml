@@ -40,13 +40,18 @@ steps:
       jdkArchitectureOption: x64
       mavenVersionOption: Path
       mavenDirectory: '/maven'
-  - script: echo "Publishing image with $(Build.BuildNumber)"
 
+  - script: echo "Publishing image with $(Build.BuildNumber)"
+  - task: DockerInstaller@0
+    inputs:
+      dockerVersion: '23.0.5'
+
+  - script: docker login registry.harbor.av360.org -u $(imageRegistryUsername) -p $(imageRegistryPassword)
   - task: Maven@3
     displayName: Build and publish Publisher Docker Image to Container Registry
     inputs:
       mavenPomFile: 'event-dispatcher-publisher/pom.xml'
-      goals: 'jib:build'
+      goals: 'jib:dockerBuild'
       publishJUnitResults: true
       jdkVersionOption: 1.17
       mavenVersionOption: Path
@@ -54,9 +59,11 @@ steps:
       options: >
         -DskipTests=false 
         -Djib.to.image=registry.harbor.av360.org/maverick/event-dispatcher-publisher
-        -Djib.to.auth.username=$(imageRegistryUsername)
-        -Djib.to.auth.password=$(imageRegistryPassword)
-        -Djib.allowInsecureRegistries=true
+#        -Djib.to.auth.username=$(imageRegistryUsername)
+#        -Djib.to.auth.password=$(imageRegistryPassword)
+#        -Djib.allowInsecureRegistries=true
+
+  - script: docker push registry.harbor.av360.org/maverick/event-dispatcher-publisher
   - task: Maven@3
     displayName: Build and publish Filter Docker Image to Container Registry
     inputs:
