@@ -45,7 +45,7 @@ public class SubscriptionManager {
     public void refreshSubscriptions(List<Subscription> subscriptions) {
         for (Subscription subscription : subscriptions) {
             if (!hasSubscription(subscription.getId())) {
-                addSubscription(subscription.getId(), subscription.getSubscriberUri());
+                addSubscription(subscription.getId(), subscription.getAddressable());
             }
         }
 

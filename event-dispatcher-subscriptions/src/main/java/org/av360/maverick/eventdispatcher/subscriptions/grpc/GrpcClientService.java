@@ -1,7 +1,6 @@
 package org.av360.maverick.eventdispatcher.subscriptions.grpc;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import org.av360.maverick.eventdispatcher.shared.GuavaAdapter;
 import org.av360.maverick.eventdispatcher.shared.domain.Subscription;
@@ -23,8 +22,6 @@ import java.util.List;
 @Service
 public class GrpcClientService {
     Logger log = LoggerFactory.getLogger(GrpcClientService.class);
-    @GrpcClient("event-dispatcher")
-    private SubscriptionServiceGrpc.SubscriptionServiceBlockingStub subscriptionServiceBlockingStub;
 
     @GrpcClient("event-dispatcher")
     private SubscriptionServiceGrpc.SubscriptionServiceFutureStub subscriptionServiceFutureStub;
@@ -35,8 +32,8 @@ public class GrpcClientService {
     private SubscriptionMessage map(Subscription subscription) {
         return SubscriptionMessage.newBuilder()
                 .setId(subscription.getId())
-                .setCreatedAt(Timestamps.fromMillis(subscription.getCreatedAt().toInstant(ZoneOffset.UTC).toEpochMilli()))
-                .setSubscriberUri(subscription.getSubscriberUri())
+                .setCreatedAt(Timestamps.fromMillis(subscription.getCreationDate().toInstant(ZoneOffset.UTC).toEpochMilli()))
+                .setSubscriberUri(subscription.getAddressable())
                 .putAllFilters(subscription.getFilters())
                 .build();
     }
@@ -74,37 +71,26 @@ public class GrpcClientService {
         return new GuavaAdapter<SubscriptionId>().asMono(future).then(Mono.empty());
     }
 
-    public List<SubscriptionId> deleteSubscriptions(List<Long> ids) {
-        List<SubscriptionId> subscriptionIds = new ArrayList<SubscriptionId>();
-        try {
+    public Flux<Long> deleteSubscriptions(Flux<Long> publisher) {
+        return Flux.create(sink -> {
             StreamObserver<SubscriptionId> responseObserver = new StreamObserver<SubscriptionId>() {
                 @Override
                 public void onNext(SubscriptionId subscriptionId) {
-                    subscriptionIds.add(subscriptionId);
+                    sink.next(subscriptionId.getId());
                 }
-
                 @Override
                 public void onError(Throwable throwable) {
-                    log.error("RPC failed: " + throwable.getMessage());
+                    sink.error(throwable);
                 }
 
                 @Override
                 public void onCompleted() {
+                    sink.complete();
                 }
             };
-
             StreamObserver<SubscriptionId> requestObserver = this.subscriptionServiceStub.deleteSubscriptions(responseObserver);
-            for (Long id : ids) {
-                requestObserver.onNext(SubscriptionId.newBuilder().setId(id).build());
-            }
-            requestObserver.onCompleted();
-        } catch (final StatusRuntimeException e) {
-            log.error("RPC failed: " + e.getStatus());
-        }
-
-        return subscriptionIds;
+            publisher.map(id -> SubscriptionId.newBuilder().setId(id).build()).doOnNext(requestObserver::onNext).doOnComplete(requestObserver::onCompleted).subscribe();
+        });
     }
-
-
 
 }

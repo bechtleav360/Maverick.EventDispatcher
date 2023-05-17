@@ -18,11 +18,11 @@
 
     <properties>
         <revision>0.1.1</revision>
-        <maven.compiler.source>19</maven.compiler.source>
-        <maven.compiler.target>19</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>3.0.4</spring.version>
-        <spring.grpc.version>2.14.0.RELEASE</spring.grpc.version>
+        <spring.grpc.version>2.15.0-SNAPSHOT</spring.grpc.version>
         <modelmapper.version>3.1.1</modelmapper.version>
         <grpc.version>1.53.0</grpc.version>
     </properties>
@@ -44,16 +44,16 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-        <dependency>
-            <groupId>net.devh</groupId>
-            <artifactId>grpc-server-spring-boot-starter</artifactId>
-            <version>${spring.grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.devh</groupId>
-            <artifactId>grpc-client-spring-boot-starter</artifactId>
-            <version>${spring.grpc.version}</version>
-        </dependency>                    
+            <dependency>
+                <groupId>net.devh</groupId>
+                <artifactId>grpc-server-spring-boot-starter</artifactId>
+                <version>${spring.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.devh</groupId>
+                <artifactId>grpc-client-spring-boot-starter</artifactId>
+                <version>${spring.grpc.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.av360.maverick</groupId>
                 <artifactId>event-dispatcher-shared</artifactId>
@@ -116,11 +116,46 @@
                 <artifactId>lombok</artifactId>
                 <version>1.18.24</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.projectreactor.rabbitmq</groupId>
+                <artifactId>reactor-rabbitmq</artifactId>
+                <version>1.5.6</version>
+            </dependency>
         </dependencies>
-
-
     </dependencyManagement>
-    <dependencies>
-
-    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <repositories>
+        <repository>
+            <id>CustomRepo</id>
+            <url>https://mumi.github.io/maven2/</url>
+        </repository>
+    </repositories>
 </project>

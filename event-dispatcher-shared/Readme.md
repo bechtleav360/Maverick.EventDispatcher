@@ -1,3 +1,3 @@
-# EventDings Library
+# EventDispatcher Library
 
-This module is a collection of functions for the EventDings project.
+This module is a collection of functions for the EventDispatcher project.

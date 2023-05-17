@@ -7,15 +7,15 @@ import org.av360.maverick.eventdispatcher.filter.SubscriptionManager;
 import org.av360.maverick.eventdispatcher.shared.CloudEventValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 public class RabbitMQStream {
     private static RabbitMQStream instance;
 
-    Environment environment;
+    private Environment environment;
 
     private static final Logger log = LoggerFactory.getLogger(RabbitMQStream.class);
-    private Consumer consumer;
 
     private RabbitMQStream() {
     }
@@ -39,7 +39,7 @@ public class RabbitMQStream {
                 .virtualHost(cfg.virtualHost())
                 .build();
 
-        this.consumer = this.environment.consumerBuilder()
+        Consumer consumer = this.environment.consumerBuilder()
                 .stream(Config.getInstance().stream())
                 .offset(OffsetSpecification.first())
                 .messageHandler((offset, message) -> {
@@ -50,17 +50,21 @@ public class RabbitMQStream {
                         msg = msg.substring(5, msg.length() - 1);
                     }
 
-                    while (!SubscriptionManager.getInstance().hasSubscriptions()) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    if (CloudEventValidator.isValidCloudEvent(msg)) {
-                        Dispatcher.dispatch(msg);
-                    }
+                    String finalMsg = msg;
+                    Mono.fromRunnable(() -> {
+                                while (!SubscriptionManager.getInstance().hasSubscriptions()) {
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            })
+                            .subscribeOn(Schedulers.boundedElastic())
+                            .then(Mono.fromCallable(() -> CloudEventValidator.isValidCloudEvent(finalMsg)))
+                            .filter(valid -> valid)
+                            .flatMap(valid -> Dispatcher.dispatch(finalMsg))
+                            .subscribe();
                 })
                 .build();
 

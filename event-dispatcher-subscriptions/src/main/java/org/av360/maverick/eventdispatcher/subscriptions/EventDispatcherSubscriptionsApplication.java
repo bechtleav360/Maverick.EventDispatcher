@@ -8,10 +8,10 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 @EnableWebFlux
 @EnableR2dbcRepositories
 @SpringBootApplication
-public class Application {
+public class EventDispatcherSubscriptionsApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(EventDispatcherSubscriptionsApplication.class, args);
 	}
 
 }

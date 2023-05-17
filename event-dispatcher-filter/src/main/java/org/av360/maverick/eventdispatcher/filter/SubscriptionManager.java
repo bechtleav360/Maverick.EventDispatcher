@@ -2,11 +2,13 @@ package org.av360.maverick.eventdispatcher.filter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.av360.maverick.eventdispatcher.filter.rabbit.RabbitMQClassic;
+import org.av360.maverick.eventdispatcher.shared.domain.Subscription;
 import org.av360.maverick.eventdispatcher.shared.grpc.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.av360.maverick.eventdispatcher.shared.dto.SubscriptionDTO;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 
@@ -14,7 +16,7 @@ public final class SubscriptionManager {
 
     private static SubscriptionManager INSTANCE;
 
-    private List<SubscriptionDTO> subscriptionDTOs = new ArrayList<SubscriptionDTO>();
+    private List<Subscription> subscriptions = new ArrayList<Subscription>();
 
     private SubscriptionManager() {
     }
@@ -27,27 +29,27 @@ public final class SubscriptionManager {
         return INSTANCE;
     }
 
-    public SubscriptionId addSubscription(Subscription subscription) {
-        if (subscriptionDTOs.stream().anyMatch(subscriptionDTO -> subscriptionDTO.getId().equals(UUID.fromString(subscription.getId())))) {
-            deleteSubscription(SubscriptionId.newBuilder().setId(subscription.getId()).build(), false);
+    public SubscriptionId addSubscription(SubscriptionMessage subscriptionMessage) {
+        if (subscriptions.stream().anyMatch(subscription -> subscription.getId().equals(subscriptionMessage.getId()))) {
+            deleteSubscription(SubscriptionId.newBuilder().setId(subscriptionMessage.getId()).build(), false);
         }
 
-        subscriptionDTOs.add(
-                new SubscriptionDTO(
-                        UUID.fromString(subscription.getId()),
-                        new Date(subscription.getCreatedAt().getSeconds() * 1000),
-                        subscription.getSubscriberUri(),
-                        subscription.getFiltersMap()
+        subscriptions.add(
+                new Subscription(
+                        subscriptionMessage.getId(),
+                        LocalDateTime.ofEpochSecond(subscriptionMessage.getCreatedAt().getSeconds(), subscriptionMessage.getCreatedAt().getNanos(), ZoneOffset.UTC),
+                        subscriptionMessage.getSubscriberUri(),
+                        subscriptionMessage.getFiltersMap()
                 )
         );
 
-        RabbitMQClassic.getInstance().createQueue("sub_" + subscription.getId());
+        RabbitMQClassic.getInstance().createQueue("sub_" + subscriptionMessage.getId());
 
-        return SubscriptionId.newBuilder().setId(subscription.getId()).build();
+        return SubscriptionId.newBuilder().setId(subscriptionMessage.getId()).build();
     }
 
     public SubscriptionId deleteSubscription(SubscriptionId subscriptionId, boolean deleteQueue) {
-        subscriptionDTOs.removeIf(subscriptionDTO -> subscriptionDTO.getId().equals(UUID.fromString(subscriptionId.getId())));
+        subscriptions.removeIf(subscription -> subscription.getId().equals(subscriptionId.getId()));
 
         if (deleteQueue) {
             RabbitMQClassic.getInstance().deleteQueue("sub_" + subscriptionId.getId());
@@ -58,22 +60,22 @@ public final class SubscriptionManager {
 
     public void deleteAllSubscriptions(boolean deleteQueues) {
         if (deleteQueues) {
-            for (SubscriptionDTO subscriptionDTO : subscriptionDTOs) {
-                RabbitMQClassic.getInstance().deleteQueue("sub_" + subscriptionDTO.getId().toString());
+            for (Subscription subscription : subscriptions) {
+                RabbitMQClassic.getInstance().deleteQueue("sub_" + subscription.getId());
             }
         }
 
-        subscriptionDTOs.clear();
+        subscriptions.clear();
     }
 
-    public List<SubscriptionDTO> findSubscriptions(String cloudevent) throws JsonProcessingException {
-        List<SubscriptionDTO> matchingSubscriptions = new ArrayList<SubscriptionDTO>();
+    public List<Subscription> findSubscriptions(String cloudevent) throws JsonProcessingException {
+        List<Subscription> matchingSubscriptions = new ArrayList<Subscription>();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(cloudevent);
 
-        for (SubscriptionDTO subscriptionDTO : subscriptionDTOs) {
+        for (Subscription subscription : subscriptions) {
             boolean allFiltersFound = true;
-            for (Map.Entry<String, String> entry : subscriptionDTO.getFilters().entrySet()) {
+            for (Map.Entry<String, String> entry : subscription.getFilters().entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
 
@@ -84,7 +86,7 @@ public final class SubscriptionManager {
             }
 
             if (allFiltersFound) {
-                matchingSubscriptions.add(subscriptionDTO);
+                matchingSubscriptions.add(subscription);
             }
         }
 
@@ -92,6 +94,6 @@ public final class SubscriptionManager {
     }
 
     public boolean hasSubscriptions() {
-        return !subscriptionDTOs.isEmpty();
+        return !subscriptions.isEmpty();
     }
 }

@@ -1,31 +1,31 @@
 package org.av360.maverick.eventdispatcher.shared.domain;
 
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 public class Subscription {
 
+    @Id
     private Long id;
-    private LocalDateTime createdAt;
-    private String subscriberUri;
-
+    private LocalDateTime creationDate;
+    private String addressable;
     private Map<String, String> filters;
 
 
     public Subscription(String addressable, Map<String, String> filters) {
-        this.subscriberUri = addressable;
+        this.addressable = addressable;
         this.filters = filters;
-        this.createdAt = LocalDateTime.now();
+        this.creationDate = LocalDateTime.now();
     }
 }
 

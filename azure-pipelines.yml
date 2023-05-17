@@ -1,0 +1,114 @@
+trigger:
+  - main
+  - develop
+  - feature/*
+
+pool: 'Docker'
+
+steps:
+  - task: JavaToolInstaller@0
+    inputs:
+      versionSpec: '17'
+      jdkArchitectureOption: 'x64'
+      jdkSourceOption: 'AzureStorage'
+      azureResourceManagerEndpoint: 'ARM_EAGL_DEV'
+      azureStorageAccountName: jdks
+      azureContainerName: linuxjdks
+      azureCommonVirtualFile: 'OpenJDK17U-jdk_x64_linux_hotspot_17.0.7_7.tar.gz'
+      cleanDestinationDirectory: false
+  - script: |
+      if [ ! -d "/maven" ]; then
+          echo "Download Maven"
+          wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.1/apache-maven-3.8.1-bin.tar.gz
+          echo "Unzip Maven"
+          tar xzvf apache-maven-3.8.1-bin.tar.gz
+          echo "Move folder"
+          mv apache-maven-3.8.1 /maven
+      else
+          echo "Maven already downloaded"
+      fi
+    displayName: 'Download Maven'
+  - task: Maven@3
+    displayName: Test and Package
+    inputs:
+      mavenPomFile: 'pom.xml'
+      goals: 'install'
+      publishJUnitResults: true
+      testResultsFiles: '**/surefire-reports/TEST-*.xml'
+      javaHomeOption: 'JDKVersion'
+      jdkVersionOption: 1.17
+      jdkArchitectureOption: x64
+      mavenVersionOption: Path
+      mavenDirectory: '/maven'
+      
+  - task: DockerInstaller@0
+    inputs:
+      dockerVersion: '23.0.5'
+
+  - script: docker login registry.harbor.av360.org -u $(imageRegistryUsername) -p $(imageRegistryPassword)
+  - task: Maven@3
+    displayName: Build Publisher Docker Image
+    inputs:
+      mavenPomFile: 'event-dispatcher-publisher/pom.xml'
+      goals: 'jib:dockerBuild'
+      publishJUnitResults: true
+      jdkVersionOption: 1.17
+      mavenVersionOption: Path
+      mavenDirectory: '/maven'
+      options: >
+        -DskipTests=false 
+        -Djib.to.image=registry.harbor.av360.org/maverick/event-dispatcher-publisher
+#        -Djib.to.auth.username=$(imageRegistryUsername)
+#        -Djib.to.auth.password=$(imageRegistryPassword)
+#        -Djib.allowInsecureRegistries=true
+
+  - script: docker push registry.harbor.av360.org/maverick/event-dispatcher-publisher
+    displayName: Push Publisher Image to Container Registry
+  - task: Maven@3
+    displayName: Build Receiver Docker Image
+    inputs:
+      mavenPomFile: 'event-dispatcher-receiver/pom.xml'
+      goals: 'jib:dockerBuild'
+      publishJUnitResults: true
+      jdkVersionOption: 1.17
+      mavenVersionOption: Path
+      mavenDirectory: '/maven'
+      options: >
+        -DskipTests=false 
+        -Djib.to.image=registry.harbor.av360.org/maverick/event-dispatcher-receiver
+#        -Djib.to.auth.username=$(imageRegistryUsername)
+#        -Djib.to.auth.password=$(imageRegistryPassword)
+#        -Djib.allowInsecureRegistries=true
+  - script: docker push registry.harbor.av360.org/maverick/event-dispatcher-receiver
+    displayName: Push Receiver Image to Container Registry
+  - task: Maven@3
+    displayName: Build and publish Filter Docker Image to Container Registry
+    inputs:
+      mavenPomFile: 'event-dispatcher-filter/pom.xml'
+      goals: 'spring-boot:build-image'
+      publishJUnitResults: true
+      jdkVersionOption: 1.17
+      mavenVersionOption: Path
+      mavenDirectory: '/maven'
+      options: >
+        -DskipTests=false 
+        -Ddocker.publish=true
+        -Ddocker.registry.host=$(imageRegistryUrl)
+        -Ddocker.credentials.user=$(imageRegistryUsername)
+        -Ddocker.credentials.password=$(imageRegistryPassword)
+  - task: Maven@3
+    displayName: Build and publish Subscriptions Docker Image to Container Registry
+    inputs:
+      mavenPomFile: 'event-dispatcher-subscriptions/pom.xml'
+      goals: 'spring-boot:build-image'
+      publishJUnitResults: true
+      jdkVersionOption: 1.17
+      mavenVersionOption: Path
+      mavenDirectory: '/maven'
+      options: >
+        -DskipTests=false 
+        -Ddocker.publish=true
+        -Ddocker.registry.host=$(imageRegistryUrl)
+        -Ddocker.credentials.user=$(imageRegistryUsername)
+        -Ddocker.credentials.password=$(imageRegistryPassword)
+        

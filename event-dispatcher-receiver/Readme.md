@@ -1,4 +1,4 @@
-# Event Reception
+# EventDispatcher Receiver
 
 Provides an addressable POST endpoint `/webhook` expecting cloudevents and forwards them to an RabbitMQ Stream.
 

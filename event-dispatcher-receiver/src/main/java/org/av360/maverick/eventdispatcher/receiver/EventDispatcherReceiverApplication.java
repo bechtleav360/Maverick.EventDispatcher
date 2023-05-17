@@ -3,9 +3,9 @@ package org.av360.maverick.eventdispatcher.receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventdingsReceptionApplication {
+public class EventDispatcherReceiverApplication {
     public static void main(String[] args) {
-        Logger log = LoggerFactory.getLogger(EventdingsReceptionApplication.class);
+        Logger log = LoggerFactory.getLogger(EventDispatcherReceiverApplication.class);
         Config cfg = Config.getInstance();
 
 

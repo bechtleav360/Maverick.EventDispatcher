@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Timer;
 
 
-public class EventdingsDeliveryApplication {
+public class EventDispatcherPublisherApplication {
     public static void main(String[] args) {
-        Logger log = LoggerFactory.getLogger(EventdingsDeliveryApplication.class);
+        Logger log = LoggerFactory.getLogger(EventDispatcherPublisherApplication.class);
 
         log.info("Starting EventDings Delivery application");
 

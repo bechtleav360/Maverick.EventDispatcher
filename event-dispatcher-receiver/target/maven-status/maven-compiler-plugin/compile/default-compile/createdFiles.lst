@@ -1,4 +1,0 @@
-org\av360\maverick\eventdispatcher\receiver\Config.class
-org\av360\maverick\eventdispatcher\receiver\EventdingsReceptionApplication.class
-org\av360\maverick\eventdispatcher\receiver\WebhookApi.class
-org\av360\maverick\eventdispatcher\receiver\RabbitMQHandler.class

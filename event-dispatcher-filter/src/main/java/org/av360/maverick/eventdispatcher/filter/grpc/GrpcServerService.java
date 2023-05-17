@@ -12,21 +12,21 @@ import java.util.List;
 public class GrpcServerService extends SubscriptionServiceGrpc.SubscriptionServiceImplBase {
 
     @Override
-    public void newSubscription(Subscription request, StreamObserver<SubscriptionId> responseObserver) {
+    public void newSubscription(SubscriptionMessage request, StreamObserver<SubscriptionId> responseObserver) {
         responseObserver.onNext(SubscriptionManager.getInstance().addSubscription(request));
         responseObserver.onCompleted();
     }
 
     @Override
-    public StreamObserver<Subscription> newSubscriptions(StreamObserver<SubscriptionId> responseObserver) {
+    public StreamObserver<SubscriptionMessage> syncSubscriptions(StreamObserver<SubscriptionId> responseObserver) {
         //TODO: Delete all subscriptions before adding new ones (Refreshing). Maybe this should be a new (refreshSubscriptions) method?
         SubscriptionManager.getInstance().deleteAllSubscriptions(false);
-        return new StreamObserver<Subscription>() {
+        return new StreamObserver<SubscriptionMessage>() {
 
             List<SubscriptionId> replyList = new ArrayList<SubscriptionId>();
             @Override
-            public void onNext(Subscription subscription) {
-                replyList.add(SubscriptionManager.getInstance().addSubscription(subscription));
+            public void onNext(SubscriptionMessage subscriptionMessage) {
+                replyList.add(SubscriptionManager.getInstance().addSubscription(subscriptionMessage));
             }
 
             @Override

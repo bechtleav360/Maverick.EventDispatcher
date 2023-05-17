@@ -13,11 +13,11 @@ import java.util.concurrent.TimeoutException;
 
 
 @SpringBootApplication
-public class EventdingsDispatcherApplication {
+public class EventDispatcherFilterApplication {
     public static void main(String[] args) throws IOException, TimeoutException {
-        Logger log = LoggerFactory.getLogger(EventdingsDispatcherApplication.class);
+        Logger log = LoggerFactory.getLogger(EventDispatcherFilterApplication.class);
 
-        SpringApplication.run(EventdingsDispatcherApplication.class, args);
+        SpringApplication.run(EventDispatcherFilterApplication.class, args);
 
         log.info("Starting Grpc Subscription Refresh Task");
         Timer timer = new Timer();

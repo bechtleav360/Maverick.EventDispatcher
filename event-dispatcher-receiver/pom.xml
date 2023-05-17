@@ -44,6 +44,17 @@
             <groupId>org.av360.maverick</groupId>
             <artifactId>event-dispatcher-shared</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit</artifactId>
+            <version>1.0.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -57,7 +68,7 @@
                         <image>eclipse-temurin:19-jre</image>
                     </from>
                     <to>
-                        <image>eventdings-reception</image>
+                        <image>eventdispatcher-receiver</image>
                     </to>
                     <container>
                         <ports>

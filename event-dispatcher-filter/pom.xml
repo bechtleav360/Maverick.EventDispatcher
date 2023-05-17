@@ -10,9 +10,14 @@
 
     <artifactId>event-dispatcher-filter</artifactId>
     <name>Maverick.EventDispatcher - Filter</name>
-    <description>Service responsible for forwarding events to correct consumer queues</description>    	
+    <description>Service responsible for forwarding events to correct consumer queues</description>
     <properties>
-        <java.version>19</java.version>
+        <java.version>17</java.version>
+        <image.name>registry.harbor.av360.org/maverick/event-dispatcher-filter</image.name>
+        <docker.publish>true</docker.publish>
+        <docker.registry.host>registry.harbor.av360.org</docker.registry.host>
+        <docker.credentials.user>xxx</docker.credentials.user>
+        <docker.credentials.password>xxx</docker.credentials.password>
     </properties>
     <dependencies>
         <dependency>
@@ -42,6 +47,10 @@
             <groupId>org.av360.maverick</groupId>
             <artifactId>event-dispatcher-shared</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.projectreactor.rabbitmq</groupId>
+            <artifactId>reactor-rabbitmq</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -49,6 +58,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.version}</version>
                 <configuration>
                     <excludes>
                         <exclude>
@@ -56,6 +66,22 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <image>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <name>${image.name}</name>
+                        <publish>${docker.publish}</publish>
+                        <verboseLogging>true</verboseLogging>
+                    </image>
+                    <docker>
+                        <publishRegistry>
+                            <!--suppress UnresolvedMavenProperty -->
+                            <username>${docker.credentials.user}</username>
+                            <!--suppress UnresolvedMavenProperty -->
+                            <password>${docker.credentials.password}</password>
+                            <!--suppress UnresolvedMavenProperty -->
+                            <url>${docker.registry.host}</url>
+                        </publishRegistry>
+                    </docker>
                 </configuration>
             </plugin>
         </plugins>

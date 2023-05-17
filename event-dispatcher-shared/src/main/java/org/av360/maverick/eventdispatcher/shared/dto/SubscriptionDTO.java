@@ -12,13 +12,13 @@ public class SubscriptionDTO {
 
     public record Response (Long identifier, LocalDateTime creationDate, String addressable, Map<String, String> filters) {
         public static Response from(Subscription sub) {
-            return new Response(sub.getId(), sub.getCreatedAt(), sub.getSubscriberUri(), sub.getFilters());
+            return new Response(sub.getId(), sub.getCreationDate(), sub.getAddressable(), sub.getFilters());
         }
     }
 
     public record ShortResponse (Long identifier, LocalDateTime creationDate, String addressable) {
         public static ShortResponse from(Subscription sub) {
-            return new ShortResponse(sub.getId(), sub.getCreatedAt(), sub.getSubscriberUri());
+            return new ShortResponse(sub.getId(), sub.getCreationDate(), sub.getAddressable());
         }
     }
 }

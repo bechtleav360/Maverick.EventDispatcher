@@ -1,0 +1,14 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  r2dbc:
+    url: r2dbc:h2:mem:///testdb
+
+grpc:
+  client:
+    event-dispatcher:
+      address: static://${DISPATCHER_ADDRESS:127.0.0.1:9090}
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext
