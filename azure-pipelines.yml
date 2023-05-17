@@ -48,7 +48,7 @@ steps:
 
   - script: docker login registry.harbor.av360.org -u $(imageRegistryUsername) -p $(imageRegistryPassword)
   - task: Maven@3
-    displayName: Build and publish Publisher Docker Image to Container Registry
+    displayName: Build Publisher Docker Image
     inputs:
       mavenPomFile: 'event-dispatcher-publisher/pom.xml'
       goals: 'jib:dockerBuild'
@@ -64,6 +64,24 @@ steps:
 #        -Djib.allowInsecureRegistries=true
 
   - script: docker push registry.harbor.av360.org/maverick/event-dispatcher-publisher
+    displayName: Push Publisher Image to Container Registry
+  - task: Maven@3
+    displayName: Build Receiver Docker Image
+    inputs:
+      mavenPomFile: 'event-dispatcher-receiver/pom.xml'
+      goals: 'jib:dockerBuild'
+      publishJUnitResults: true
+      jdkVersionOption: 1.17
+      mavenVersionOption: Path
+      mavenDirectory: '/maven'
+      options: >
+        -DskipTests=false 
+        -Djib.to.image=registry.harbor.av360.org/maverick/event-dispatcher-receiver
+#        -Djib.to.auth.username=$(imageRegistryUsername)
+#        -Djib.to.auth.password=$(imageRegistryPassword)
+#        -Djib.allowInsecureRegistries=true
+  - script: docker push registry.harbor.av360.org/maverick/event-dispatcher-receiver
+    displayName: Push Receiver Image to Container Registry
   - task: Maven@3
     displayName: Build and publish Filter Docker Image to Container Registry
     inputs:
@@ -79,21 +97,6 @@ steps:
         -Ddocker.registry.host=$(imageRegistryUrl)
         -Ddocker.credentials.user=$(imageRegistryUsername)
         -Ddocker.credentials.password=$(imageRegistryPassword)
-  - task: Maven@3
-    displayName: Build and publish Receiver Docker Image to Container Registry
-    inputs:
-      mavenPomFile: 'event-dispatcher-receiver/pom.xml'
-      goals: 'jib:build'
-      publishJUnitResults: true
-      jdkVersionOption: 1.17
-      mavenVersionOption: Path
-      mavenDirectory: '/maven'
-      options: >
-        -DskipTests=false 
-        -Djib.to.image=registry.harbor.av360.org/maverick/event-dispatcher-receiver
-        -Djib.to.auth.username=$(imageRegistryUsername)
-        -Djib.to.auth.password=$(imageRegistryPassword)
-        -Djib.allowInsecureRegistries=true
   - task: Maven@3
     displayName: Build and publish Subscriptions Docker Image to Container Registry
     inputs:
