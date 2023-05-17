@@ -40,8 +40,7 @@ steps:
       jdkArchitectureOption: x64
       mavenVersionOption: Path
       mavenDirectory: '/maven'
-
-  - script: echo "Publishing image with $(Build.BuildNumber)"
+      
   - task: DockerInstaller@0
     inputs:
       dockerVersion: '23.0.5'
